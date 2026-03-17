@@ -1,0 +1,7 @@
+# executable
+vcs
+# object files from compilation
+*.o
+# vcs and versions folders created from init
+.vcs/versions
+
