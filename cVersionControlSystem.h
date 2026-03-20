@@ -5,11 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-// for mkdir
-#include <sys/stat.h>
+#include <sys/stat.h> // for mkdir
+#include <unistd.h> // for access
 
 // function prototypes
 void init();
+void commit(const char* file);
 
 // add a commit and checkout command
 
