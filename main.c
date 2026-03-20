@@ -18,6 +18,19 @@ int main(int argc, char* argv[]) {
         init(); // call init to create vcs and versions folders
     }
 
+    // check to see if command called is commit
+    else if (strcmp(argv[1], "commit") == 0)
+    {
+       if (argc < 3) // need 3 arguments
+       {
+            printf("ERROR: not enough arguments");
+            return 1;
+       }
+
+       // call commit with the filename
+       commit(argv[2]);
+    }
+
 
     return 0;
 }
