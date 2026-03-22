@@ -31,6 +31,18 @@ int main(int argc, char* argv[]) {
        commit(argv[2]);
     }
 
+    // check to see if command called is log
+    else if (strcmp(argv[1], "log") == 0)
+    {
+        if (argc < 3) // need 3 arguments
+        {
+            printf("ERROR: not enough arguments\n");
+            return 1;
+        }
+
+        // get versions of a given file using its name and show them
+        fileLogs(argv[2]);
+    }
 
     return 0;
 }

@@ -13,7 +13,10 @@ void init();
 void commit(const char* file);
 
 // add a commit and checkout command
+// TODO
 
+// version logging
+void fileLogs(const char* file);
 
 
 #endif
