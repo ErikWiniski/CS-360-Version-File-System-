@@ -11,9 +11,7 @@
 // function prototypes
 void init();
 void commit(const char* file);
-
-// add a commit and checkout command
-
+void checkout(const char* file, int ver);
 
 
 #endif
