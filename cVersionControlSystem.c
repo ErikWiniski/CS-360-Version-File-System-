@@ -16,8 +16,8 @@
 void init()
 {
     // permissions set to 0700, so only user can access
-    mkdir(".vcs", 0700);  // create vcs folder
-    mkdir(".vcs/versions", 0700);  // create versions sub folder
+    mkdir(".vcs");  // create vcs folder
+    mkdir(".vcs/versions");  // create versions sub folder
 }
 
 // saves the file as a version in the versions folder
