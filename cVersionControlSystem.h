@@ -13,5 +13,7 @@ void init();
 void commit(const char* file);
 void checkout(const char* file, int ver);
 
+// version logging
+void fileLogs(const char* file);
 
 #endif

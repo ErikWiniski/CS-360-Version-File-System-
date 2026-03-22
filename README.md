@@ -5,3 +5,5 @@ gcc main.c cVersionControlSystem.c -o vcs
 commands:
 ./vcs init
 ./vcs commit (FILENAME)
+./vcs checkout (FILENAME) (version number)
+./vcs log (FILENAME)

@@ -1,6 +1,16 @@
 
 #include "cVersionControlSystem.h"
 
+// makes it so the mkdir works on both windows and mac/linux systems
+#ifdef _WIN32
+    #include <direct.h>
+    #define MKDIR(path) _mkdir(path)
+#else
+    #include <sys/stat.h>
+    #include <sys/types.h>
+    #define MKDIR(path) mkdir(path, 0700)
+#endif
+
 // creates the .vcs and versions folders to contain the versions of
 // files for the system, use 0700 permisions so only user can access 
 void init()
@@ -124,4 +134,37 @@ void checkout(const char* file, int ver)
     fclose(original);
     
     printf("Replaced %s with version %d.\n", file, ver); // show that file is replaced with ver
+}
+
+void fileLogs(const char* file)
+{
+    // check if we can find file / it doesnt exist
+    char firstVer[300];
+    snprintf(firstVer, sizeof(firstVer), ".vcs/versions/%s_v1", file);
+
+    if (access(firstVer, F_OK) == -1)
+    {
+        printf("No versions found for the file: %s\n", file);
+        return;
+    }
+
+    // need to go check versions
+    int ver = 1;    // version checking starts at 1
+    char verFilepath[300];    // stores the file path of the version
+
+    // intro text before versions start getting printed
+    printf("Version(s) for the file: %s\n\n", file);
+
+    // loop that prints each version
+    while(1)
+    {
+        snprintf(verFilepath, sizeof(verFilepath), ".vcs/versions/%s_v%d", file, ver);
+
+        if (access(verFilepath, F_OK) == -1)
+        {
+            break;
+        }
+        printf("Version #%d\n", ver);
+        ver++;
+    }
 }
