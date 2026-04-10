@@ -7,6 +7,7 @@
 
 #include <sys/stat.h> // for mkdir
 #include <unistd.h> // for access
+#include <time.h> // for metadata
 
 // function prototypes
 void init();

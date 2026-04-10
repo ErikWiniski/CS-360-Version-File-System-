@@ -16,8 +16,15 @@
 void init()
 {
     // permissions set to 0700, so only user can access
-    mkdir(".vcs");  // create vcs folder
-    mkdir(".vcs/versions");  // create versions sub folder
+    MKDIR(".vcs");  // create vcs folder
+    MKDIR(".vcs/versions");  // create versions sub folder
+
+    // create metadata file if it doesnt exist
+    FILE* metaFile = fopen(".vcs/metadata.txt", "a");
+    if (metaFile) // if file opened close it
+    {
+        fclose(metaFile);
+    }
 }
 
 // saves the file as a version in the versions folder
@@ -81,6 +88,19 @@ void commit(const char* file)
     // close files
     fclose(original);
     fclose(newVerFile);
+
+    // add to metadata
+    FILE* metaFile = fopen(".vcs/metadata.txt", "a");
+    if (metaFile) // check if open
+    {
+        // get current time
+        time_t ct = time(NULL);
+        char* currentTime = ctime(&ct);
+
+        // print metadata into file
+        fprintf(metaFile, "%s v%d %s", file, ver, currentTime);
+        fclose(metaFile); // close file
+    }
 
     printf("Committed.\n"); // show that file is commited
 }
