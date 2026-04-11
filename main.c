@@ -1,11 +1,13 @@
 
 #include "cVersionControlSystem.h"
-
+#include "cControlSystemJurnalingSystem.h"
 // Main
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
 
     // use switch statement?
-
+    recoverJournal(); // check if we need to recover from journal before doing anything else
+    
     // check if arguments is less than 2, we need at least two
     if(argc < 2)
     {
@@ -21,7 +23,7 @@ int main(int argc, char* argv[]) {
     }
 
     // check to see if command called is commit
-    else if (strcmp(argv[1], "commit") == 0)
+    if (strcmp(argv[1], "commit") == 0)
     {
        if (argc < 3) // need 3 arguments
        {
@@ -34,7 +36,7 @@ int main(int argc, char* argv[]) {
     }
 
     // check to see if command called is checkout
-    else if (strcmp(argv[1], "checkout") == 0)
+    if (strcmp(argv[1], "checkout") == 0)
     {
        if (argc < 4) // need 4 arguments
        {
@@ -47,7 +49,7 @@ int main(int argc, char* argv[]) {
     }
 
     // check to see if command called is log
-    else if (strcmp(argv[1], "log") == 0)
+    if (strcmp(argv[1], "log") == 0)
     {
         if (argc < 3) // need 3 arguments
         {

@@ -1,5 +1,6 @@
 
 #include "cVersionControlSystem.h"
+#include "cControlSystemJurnalingSystem.h"
 
 // makes it so the mkdir works on both windows and mac/linux systems
 #ifdef _WIN32
@@ -11,10 +12,12 @@
     #define MKDIR(path) mkdir(path, 0700)
 #endif
 
+
 // creates the .vcs and versions folders to contain the versions of
 // files for the system, use 0700 permisions so only user can access 
 void init()
 {
+<<<<<<< HEAD
     // permissions set to 0700, so only user can access
     MKDIR(".vcs");  // create vcs folder
     MKDIR(".vcs/versions");  // create versions sub folder
@@ -25,17 +28,46 @@ void init()
     {
         fclose(metaFile);
     }
+=======
+    if (MKDIR(".vcs") == -1)
+    {
+        printf("Warning: .vcs may already exist\n");
+    }
+
+    if (MKDIR(".vcs/versions") == -1)
+    {
+        printf("Warning: versions folder may already exist\n");
+    }
+
+    FILE* journal = fopen(".vcs/journal.log", "w");
+
+    if(!journal)
+    {
+        printf("Failed to create journal file.\n");
+        return;
+    }
+
+    fclose(journal);
+
+    printf("Repository initialized.\n");
+>>>>>>> 1a4ee87 (4/10/26)
 }
 
 // saves the file as a version in the versions folder
 void commit(const char* file)
 {
+
     // check if we can find file / it doesnt exist
     if (access(file, F_OK) == -1)
     {
         printf("Cannot find file or it doesnt exist.\n");
         return;
     }
+
+    char journalFilepath[200];
+    snprintf(journalFilepath, sizeof(journalFilepath), "START_COMMIT: %s", file);
+    writeJournal(journalFilepath); // write to journal before commiting
+
 
     // need to go check versions
     int ver = 1;    // version checking starts at 1
@@ -89,6 +121,7 @@ void commit(const char* file)
     fclose(original);
     fclose(newVerFile);
 
+<<<<<<< HEAD
     // add to metadata
     FILE* metaFile = fopen(".vcs/metadata.txt", "a");
     if (metaFile) // check if open
@@ -103,6 +136,12 @@ void commit(const char* file)
     }
 
     printf("Committed.\n"); // show that file is commited
+=======
+    snprintf(journalFilepath, sizeof(journalFilepath), "END_COMMIT: %s", file);
+    writeJournal(journalFilepath); // write to journal after commiting
+
+    printf("Committed version %d of %s.\n", ver, file); // show that file is commited
+>>>>>>> 1a4ee87 (4/10/26)
 }
 
 // replaces the current file with a selected version of the file
