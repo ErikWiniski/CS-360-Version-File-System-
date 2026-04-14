@@ -1,10 +1,12 @@
 
 #include "cVersionControlSystem.h"
 #include "cControlSystemJurnalingSystem.h"
+#include "cLockSystem.h"
 // Main
 int main(int argc, char* argv[]) 
 {
-
+    //initilize the lock system
+    InitilizeLock(); 
     // use switch statement?
     recoverJournal(); // check if we need to recover from journal before doing anything else
     
@@ -61,5 +63,7 @@ int main(int argc, char* argv[])
         fileLogs(argv[2]);
     }
 
+    //destroy the lock system
+    DestroyLock();
     return 0;
 }

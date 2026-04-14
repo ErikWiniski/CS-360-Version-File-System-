@@ -1,6 +1,7 @@
 
 #include "cVersionControlSystem.h"
 #include "cControlSystemJurnalingSystem.h"
+#include "cLockSystem.h"
 
 // makes it so the mkdir works on both windows and mac/linux systems
 #ifdef _WIN32
@@ -17,7 +18,7 @@
 // files for the system, use 0700 permisions so only user can access 
 void init()
 {
-<<<<<<< HEAD
+//<<<<<<< HEAD
     // permissions set to 0700, so only user can access
     MKDIR(".vcs");  // create vcs folder
     MKDIR(".vcs/versions");  // create versions sub folder
@@ -28,7 +29,7 @@ void init()
     {
         fclose(metaFile);
     }
-=======
+//=======
     if (MKDIR(".vcs") == -1)
     {
         printf("Warning: .vcs may already exist\n");
@@ -50,23 +51,53 @@ void init()
     fclose(journal);
 
     printf("Repository initialized.\n");
->>>>>>> 1a4ee87 (4/10/26)
+//>>>>>>> 1a4ee87 (4/10/26)
+}
+
+//this function is needed so that commit does not double lock when writeJournal() from the other file is called
+static void internalWriteJournal(const char* file)
+{
+    // construct journal file path
+    struct stat st = {0};   
+
+    if (stat(".vcs", &st) == -1)
+    {
+        printf("ERROR: .vcs directory not found. Run init first.\n");
+        return;
+    }
+    // open journal file in write
+    FILE* journalFile = fopen(".vcs/journal.log", "a");
+    if (!journalFile)
+    {
+        perror("cannot open journal file");
+        return;
+    }
+
+    // write some data to the journal file (for example, the filename)
+    fprintf(journalFile, "Journal entry for file: %s\n", file);
+
+    // close journal file
+    fclose(journalFile);
 }
 
 // saves the file as a version in the versions folder
 void commit(const char* file)
 {
+    //lock writing for this file so no other threads/terminals can write to it at the same time
+    pthread_rwlock_wrlock(&global_rwlock);
 
     // check if we can find file / it doesnt exist
     if (access(file, F_OK) == -1)
     {
         printf("Cannot find file or it doesnt exist.\n");
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
     char journalFilepath[200];
     snprintf(journalFilepath, sizeof(journalFilepath), "START_COMMIT: %s", file);
-    writeJournal(journalFilepath); // write to journal before commiting
+    internalWriteJournal(journalFilepath); // write to journal before commiting
 
 
     // need to go check versions
@@ -93,6 +124,8 @@ void commit(const char* file)
     {
         // if cant open
         printf("cannot open original file");
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -103,6 +136,8 @@ void commit(const char* file)
         // if cant make new file
         printf("cannot create new version file");
         fclose(original);
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -121,7 +156,7 @@ void commit(const char* file)
     fclose(original);
     fclose(newVerFile);
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
     // add to metadata
     FILE* metaFile = fopen(".vcs/metadata.txt", "a");
     if (metaFile) // check if open
@@ -136,17 +171,23 @@ void commit(const char* file)
     }
 
     printf("Committed.\n"); // show that file is commited
-=======
+//=======
     snprintf(journalFilepath, sizeof(journalFilepath), "END_COMMIT: %s", file);
-    writeJournal(journalFilepath); // write to journal after commiting
+    internalWriteJournal(journalFilepath); // write to journal after commiting
 
     printf("Committed version %d of %s.\n", ver, file); // show that file is commited
->>>>>>> 1a4ee87 (4/10/26)
+//>>>>>>> 1a4ee87 (4/10/26)
+
+    //unlock write functionality
+    pthread_rwlock_unlock(&global_rwlock);
 }
 
 // replaces the current file with a selected version of the file
 void checkout(const char* file, int ver)
 {
+    //lock writing for this file so no other threads/terminals can write to it at the same time
+    pthread_rwlock_wrlock(&global_rwlock);
+
     char verFilepath[300];    // stores the file path of the version
 
     // check if we can find file / it doesnt exist
@@ -155,6 +196,8 @@ void checkout(const char* file, int ver)
     if (access(verFilepath, F_OK) == -1)
     {
         printf("Cannot find file or it doesnt exist.\n");
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -164,6 +207,8 @@ void checkout(const char* file, int ver)
     {
         // if cant find ver file
         printf("cannot open version file");
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -174,6 +219,8 @@ void checkout(const char* file, int ver)
         // if cant open
         printf("cannot open original file");
         fclose(newVerFile);
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -193,10 +240,16 @@ void checkout(const char* file, int ver)
     fclose(original);
     
     printf("Replaced %s with version %d.\n", file, ver); // show that file is replaced with ver
+
+    //unlock write functionality
+    pthread_rwlock_unlock(&global_rwlock);
 }
 
 void fileLogs(const char* file)
 {
+    //lock for reading
+    pthread_rwlock_rdlock(&global_rwlock);
+
     // check if we can find file / it doesnt exist
     char firstVer[300];
     snprintf(firstVer, sizeof(firstVer), ".vcs/versions/%s_v1", file);
@@ -204,6 +257,8 @@ void fileLogs(const char* file)
     if (access(firstVer, F_OK) == -1)
     {
         printf("No versions found for the file: %s\n", file);
+        //unlock early
+        pthread_rwlock_unlock(&global_rwlock);
         return;
     }
 
@@ -226,4 +281,6 @@ void fileLogs(const char* file)
         printf("Version #%d\n", ver);
         ver++;
     }
+    //unlock read lock
+    pthread_rwlock_unlock(&global_rwlock);
 }

@@ -11,6 +11,7 @@
 
 // function prototypes
 void init();
+static void internalwriteJournal(const char* file);
 void commit(const char* file);
 void checkout(const char* file, int ver);
 
