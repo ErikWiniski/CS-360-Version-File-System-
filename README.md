@@ -1,6 +1,6 @@
 # CS-360-Version-File-System-
 run:
-gcc main.c cVersionControlSystem.c cControlSystemJurnalingSystem.c -o vcs
+gcc main.c cVersionControlSystem.c cControlSystemJurnalingSystem.c cLockSyste.c -o vcs
 
 commands:
 ./vcs init
